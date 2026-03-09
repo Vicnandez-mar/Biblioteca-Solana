@@ -10,33 +10,39 @@ async function main() {
   const idl = await anchor.Program.fetchIdl("Vet111111111111111111111111111111111111111", provider);
   const program = new anchor.Program(idl!, new PublicKey("Vet111111111111111111111111111111111111111"), provider);
 
-  // Genera una nueva cuenta para la mascota
-  const petKeypair = anchor.web3.Keypair.generate();
+  // Datos de la mascota
+  const nombreMascota = "Firulais";
+
+  // Derivar PDA con seeds: ["pet", user, nombre]
+  const [petPda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("pet"), provider.wallet.publicKey.toBuffer(), Buffer.from(nombreMascota)],
+    program.programId
+  );
 
   // Crear mascota
   await program.methods.createPet(
-    "Firulais",       // nombre
-    "Labrador",       // raza
-    "Perro",          // especie
-    5,                // edad
+    nombreMascota,       // nombre
+    "Labrador",          // raza
+    "Perro",             // especie
+    5,                   // edad
     "Rabia, Parvovirus", // vacunación
-    "Victor",         // dueño
-    "Ninguna"         // enfermedades
+    "Victor",            // dueño
+    "Ninguna"            // enfermedades
   ).accounts({
-    petAccount: petKeypair.publicKey,
+    petAccount: petPda,
     user: provider.wallet.publicKey,
     systemProgram: SystemProgram.programId,
-  }).signers([petKeypair]).rpc();
+  }).rpc();
 
-  console.log("Mascota creada:", petKeypair.publicKey.toBase58());
+  console.log("Mascota creada en PDA:", petPda.toBase58());
 
   // Consultar mascota
-  const petAccount = await program.account.petAccount.fetch(petKeypair.publicKey);
+  const petAccount = await program.account.petAccount.fetch(petPda);
   console.log("Consulta mascota:", petAccount);
 
   // Modificar mascota
   await program.methods.updatePet(
-    "Firulais",
+    nombreMascota,
     "Labrador",
     "Perro",
     6, // nueva edad
@@ -44,19 +50,19 @@ async function main() {
     "Victor",
     "Dermatitis"
   ).accounts({
-    petAccount: petKeypair.publicKey,
+    petAccount: petPda,
     user: provider.wallet.publicKey,
   }).rpc();
 
   console.log("Mascota modificada");
 
   // Consultar de nuevo
-  const updatedPet = await program.account.petAccount.fetch(petKeypair.publicKey);
+  const updatedPet = await program.account.petAccount.fetch(petPda);
   console.log("Mascota actualizada:", updatedPet);
 
   // Borrar mascota
   await program.methods.deletePet().accounts({
-    petAccount: petKeypair.publicKey,
+    petAccount: petPda,
     user: provider.wallet.publicKey,
   }).rpc();
 
