@@ -1,35 +1,94 @@
-// No imports needed: web3, anchor, pg and more are globally available
+import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { assert } from "chai";
 
-describe("Test", () => {
-  it("initialize", async () => {
-    // Generate keypair for the new account
-    const newAccountKp = new web3.Keypair();
+// Importa el IDL generado por Anchor
+import idl from "../target/idl/veterinaria.json";
 
-    // Send transaction
-    const data = new BN(42);
-    const txHash = await pg.program.methods
-      .initialize(data)
-      .accounts({
-        newAccount: newAccountKp.publicKey,
-        signer: pg.wallet.publicKey,
-        systemProgram: web3.SystemProgram.programId,
-      })
-      .signers([newAccountKp])
-      .rpc();
-    console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
+// ID del programa (debe coincidir con el declare_id! en Rust)
+const PROGRAM_ID = new PublicKey("OWNER111111111111111111111111111111111111111");
 
-    // Confirm transaction
-    await pg.connection.confirmTransaction(txHash);
+describe("veterinaria", () => {
+  // Configuración del proveedor
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
 
-    // Fetch the created account
-    const newAccount = await pg.program.account.newAccount.fetch(
-      newAccountKp.publicKey
+  const program = new Program(idl as anchor.Idl, PROGRAM_ID, provider);
+
+  // Datos de prueba
+  const nombre = "Firulais";
+  const raza = "Labrador";
+  const especie = "Perro";
+  const edad = 5;
+  const vacunacion = "Rabia, Parvovirus";
+  const dueno = "Victor";
+  const enfermedades = "Ninguna";
+
+  let cuentaMascota: PublicKey;
+
+  it("Crea una mascota", async () => {
+    [cuentaMascota] = PublicKey.findProgramAddressSync(
+      [Buffer.from("mascota"), provider.wallet.publicKey.toBuffer(), Buffer.from(nombre)],
+      program.programId
     );
 
-    console.log("On-chain data is:", newAccount.data.toString());
+    await program.methods
+      .crearMascota(nombre, raza, especie, edad, vacunacion, dueno, enfermedades)
+      .accounts({
+        cuentaMascota,
+        usuario: provider.wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
 
-    // Check whether the data on-chain is equal to local 'data'
-    assert(data.eq(newAccount.data));
+    const cuenta = await program.account.cuentaMascota.fetch(cuentaMascota);
+    assert.equal(cuenta.nombre, nombre);
+    assert.equal(cuenta.raza, raza);
+    assert.equal(cuenta.especie, especie);
+    assert.equal(cuenta.edad, edad);
+    assert.equal(cuenta.vacunacion, vacunacion);
+    assert.equal(cuenta.dueno, dueno);
+    assert.equal(cuenta.enfermedades, enfermedades);
+  });
+
+  it("Actualiza la mascota", async () => {
+    const nuevaEdad = 6;
+    const nuevasEnfermedades = "Dermatitis";
+
+    await program.methods
+      .actualizarMascota(nombre, raza, especie, nuevaEdad, vacunacion, dueno, nuevasEnfermedades)
+      .accounts({
+        cuentaMascota,
+        usuario: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    const cuenta = await program.account.cuentaMascota.fetch(cuentaMascota);
+    assert.equal(cuenta.edad, nuevaEdad);
+    assert.equal(cuenta.enfermedades, nuevasEnfermedades);
+  });
+
+  it("Obtiene la mascota", async () => {
+    const cuenta = await program.account.cuentaMascota.fetch(cuentaMascota);
+    console.log("Mascota obtenida:", cuenta);
+    assert.equal(cuenta.nombre, nombre);
+  });
+
+  it("Elimina la mascota", async () => {
+    await program.methods
+      .eliminarMascota()
+      .accounts({
+        cuentaMascota,
+        usuario: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    try {
+      await program.account.cuentaMascota.fetch(cuentaMascota);
+      assert.fail("La cuenta debería estar cerrada");
+    } catch (err) {
+      console.log("Mascota eliminada correctamente");
+    }
   });
 });
-
