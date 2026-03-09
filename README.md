@@ -18,6 +18,8 @@ Cada registro incluye los siguientes campos:
 - **Consultar** información de una mascota
 - **Borrar** un registro
 - **Listar** todas las mascotas de un usuario
+- Uso de **PDA con seeds** para cuentas determinísticas
+
 
 ## ⚙️ Requisitos
 
@@ -31,9 +33,6 @@ Cada registro incluye los siguientes campos:
   - Node.js y Yarn/NPM para el cliente en TypeScript
 🚀 Instalación y despliegue
 1.  Clona el repositorio:
-git clone https://github.com/tuusuario/veterinaria-anchor.git
-cd veterinaria-anchor
-- 
 
 git clone https://github.com/tuusuario/veterinaria-anchor.git
 cd veterinaria-anchor
@@ -55,6 +54,8 @@ veterinaria-anchor/
 │   └── veterinaria/        # Código Rust del programa
 ├── client/                 # Cliente en TypeScript
 │   └── client.ts
+├── tests/                  # Pruebas automatizadas
+│   └── anchor.test.ts
 ├── target/idl/             # IDL generado por Anchor
 └── README.md
 
@@ -69,6 +70,19 @@ El cliente permite:
 - Modificar (updatePet)
 - Borrar (deletePet)
 - Listar todas las mascotas de un usuario (all)
+
+🧪 Pruebas automatizadas
+Ejecuta las pruebas con:
+
+anchor test
+
+Las pruebas () validan:
+• 	Creación de mascota en PDA
+• 	Modificación de datos
+• 	Consulta de mascota
+• 	Eliminación de registro
+• 	Manejo de errores (, )
+
 ⚠️ Manejo de errores
 El programa define errores personalizados:
 - InvalidInput: cuando faltan datos obligatorios.
