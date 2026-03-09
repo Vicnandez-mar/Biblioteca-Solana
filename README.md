@@ -1,60 +1,81 @@
-# Biblioteca en Solana
+# 🐾 Biblioteca Veterinaria en Solana (Anchor)
 
-![banner](./images/banner-biblioteca.jpg)
+Este proyecto implementa un programa en **Rust con Anchor** para la blockchain de **Solana**, que permite gestionar registros de mascotas en una biblioteca veterinaria.  
+Cada registro incluye los siguientes campos:
 
-CRUD básico de un Solana Program desarrollado con Rust y Anchor desde el Solana Playground. 
+- Nombre
+- Raza
+- Especie
+- Edad
+- Vacunación
+- Nombre del dueño
+- Enfermedades
 
-Puedes comenzar dándole Fork a este repositorio (abajo te explicamos como 👇), **hemos preparado un entorno de codespaces listo para que no tengas que instalar nada**, solo déjate llevar por la fluidez de los ejercicios y temas desarrollados especialmente para ti. 
+## ✨ Funcionalidades
 
-Asegúrate de clonar este repositorio a tu cuenta usando el botón **`Fork`**.
+- **Crear** un registro de mascota
+- **Modificar** datos existentes
+- **Consultar** información de una mascota
+- **Borrar** un registro
+- **Listar** todas las mascotas de un usuario
 
-![fork](./images/fork.png)
+## ⚙️ Requisitos
 
-## Importando el proyecto 
+- [Rust](https://www.rust-lang.org/) (versión estable)
+- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
+- [Anchor](https://book.anchor-lang.com/)  
+  ```bash
+  
+  cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locke
 
-Ya con el repositorio en tu cuenta lo siguiente que debes hacer copiar el `enlace de tu repositorio`, lo que se puede hacer directamente desdel navegador:
+  - Node.js y Yarn/NPM para el cliente en TypeScript
+🚀 Instalación y despliegue
+1.  Clona el repositorio:
+git clone https://github.com/tuusuario/veterinaria-anchor.git
+cd veterinaria-anchor
+- 
 
-![repo](./images/repo.png)
-Posteriormente, lo uniremos con el siguiente enlace en nuestro navegador de preferencia:
+git clone https://github.com/tuusuario/veterinaria-anchor.git
+cd veterinaria-anchor
 
-```url
-https://beta.solpg.io/
-```
+2.  Compila el programa:
 
-Lo que nos dará algo parecido a:
+anchor build
 
-![url](./images/url.png)
+3. 	Despliega en Solana (devnet recomendado):
 
-Al pulsar enter seremos enviados al `Solana Playground` con nuestro proyecto abierto:
+anchor deploy
 
-![pg](./images/pg.png)
+4. 	Guarda el IDL generado en target/idl/veterinaria.json.
 
-Para guardarlo solo damos clic en el boton `import` y asignamos un nombre:
+📂 Estructura del proyect
 
-![import](./images/import.png)
+veterinaria-anchor/
+├── programs/
+│   └── veterinaria/        # Código Rust del programa
+├── client/                 # Cliente en TypeScript
+│   └── client.ts
+├── target/idl/             # IDL generado por Anchor
+└── README.md
 
-## Preparacion del entorno
+🧑‍💻 Uso del cliente
+Ejemplo de ejecución con ts-node:
 
-Primero conectaremos el entorno con la devnet, lo que tambien procederá a la creación de una wallet. Para eso daremos clic en donde dice **Not Conected**:
+ts-node client/client.ts
 
-![playground1](./images/playground1.png)
+El cliente permite:
+- Crear una mascota (createPet)
+- Consultar datos (fetch)
+- Modificar (updatePet)
+- Borrar (deletePet)
+- Listar todas las mascotas de un usuario (all)
+⚠️ Manejo de errores
+El programa define errores personalizados:
+- InvalidInput: cuando faltan datos obligatorios.
+- Unauthorized: cuando un usuario intenta modificar o borrar un registro que no le pertenece.
+Estos errores se devuelven como mensajes claros en la ejecución.
+📜 Licencia
+Este proyecto es de código abierto bajo la licencia MIT.
+Puedes usarlo, modificarlo y compartirlo libremente.
 
-Saldrá la siguiente ventana donde daremos en el botón **Continue**:
-
-![wallet](./images/wallet.png)
-
-Como resultado se mostrará la siguiente información:
-
-![status](./images/status.png)
-
-* En verde: el estado de la conexión y el entorno al que se encuentra conectado
-
-* En amarillo: la la dirección de la wallet conectada
-
-* En azul: la cantidad de tokens en la wallet
-
-> ℹ️ ¿Quieres ver el ejemplo de un "Hola Mundo" en Solana?. Da clic aquí: 👉 [Ver Ejemplo](https://github.com/WayLearnLatam/Solana-starter-kit/tree/1fc6349ba63375a3fe223d8d56911bc64765459b/build-deploy)
-
-> ℹ️ ¿Cuentas con una Wallet de [Phantom](https://phantom.com/) que deseas importar?, Da clic aquí para ver como hacerlo: 
-
-👉 [Como Importar una Wallet](https://github.com/WayLearnLatam/Solana-starter-kit/tree/1fc6349ba63375a3fe223d8d56911bc64765459b/import-key-a-playground)
+🐶🐱 ¡Con esta biblioteca puedes gestionar de forma segura y transparente la información veterinaria en la blockchain de Solana!
